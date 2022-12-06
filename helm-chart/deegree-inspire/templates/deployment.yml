@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  labels:
+    {{- include "deegree-inspire.labels" . | nindent 4 }}
+spec:
+  #replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "deegree-inspire.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "deegree-inspire.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-serviceaccount
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Release.Name }}-container
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+        ports:
+          - containerPort: 8080
+        resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        readinessProbe:
+            tcpSocket:
+                port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+        livenessProbe:
+            tcpSocket:
+                port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+        volumeMounts:
+        - mountPath: /var/lib/tomcat/.deegree
+          name: {{ .Release.Name }}-volume
+        - mountPath: /usr/local/tomcat/logs
+          name: {{ .Release.Name }}-logs-volume
+        - mountPath: /usr/local/tomcat/temp
+          name: {{ .Release.Name }}-temp-volume
+        - mountPath: /usr/local/tomcat/conf/Catalina
+          name: {{ .Release.Name }}-conf-volume
+        - mountPath: /usr/local/tomcat/work
+          name: {{ .Release.Name }}-work-volume
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secret
+              key: password
+        lifecycle:
+          postStart:
+            exec:
+              command: ['/bin/sh', '-c', 'cp -R /tmp/workspaces/* /var/lib/tomcat/.deegree; sed -i "s/DB_USER/$DB_USER/" /var/lib/tomcat/.deegree/deegree-inspire-workspace/jdbc/db.xml; sed -i "s/DB_PASSWORD/$DB_PASSWORD/" /var/lib/tomcat/.deegree/deegree-inspire-workspace/jdbc/db.xml']
+      volumes:
+      - name: {{ .Release.Name }}-volume
+        emptyDir: {}
+      - name: {{ .Release.Name }}-logs-volume
+        emptyDir: {}
+      - name: {{ .Release.Name }}-temp-volume
+        emptyDir: {}
+      - name: {{ .Release.Name }}-conf-volume
+        emptyDir: {}
+      - name: {{ .Release.Name }}-work-volume
+        emptyDir: {}
