@@ -49,7 +49,7 @@ stage('Docker Build Image') {
                     def dockerfile = 'Dockerfile'
                     pomVersion = sh(returnStdout: true, script: 'mvn help:evaluate -Dexpression=project.version -q -DforceStdout').trim()
                     dockerImageName = "${DOCKER_REGISTRY}/docker-dev/deegree-inspire:${pomVersion}"
-			def customImage = docker.build("${dockerImageName}", "-f ${dockerfile} --build-arg target_app=deegree-inspire --build-arg target_workspace=deegree-inspire-workspace .")
+		def customImage = docker.build("${dockerImageName}", "-f ${dockerfile} --build-arg target_app=deegree-inspire --build-arg target_workspace=deegree-inspire-workspace .")
                 }
             }
 }
@@ -102,4 +102,4 @@ Noch ein Wort zum Horizontal Pod Autoscaler. Dieser ermöglicht es, die Anzahl d
 
 
 ## Ausblick
-Wie wir gesehen haben, vereinfacht Helm das Deployment von Kubernetes Anwendungen erheblich. Es bietet auch eine Versionsverwaltung mit Rollback-Funktion. Im Repository [k8s-cronjob](https://github.com/enatdvmv/ k8s-cronjob) werden wir noch einen Kubernetes CronJob anlegen, der regelmäßig einen GetFeature bzw. GetMap auf unsere deegree WebServices absetzt.
+Wie wir gesehen haben, vereinfacht Helm das Deployment von Kubernetes Anwendungen erheblich. Es bietet auch eine Versionsverwaltung mit Rollback-Funktion. Im Repository [k8s-cronjob](https://github.com/enatdvmv/k8s-cronjob) werden wir noch einen Kubernetes CronJob anlegen, der regelmäßig einen GetFeature bzw. GetMap Request auf unsere deegree WebServices absetzt.
