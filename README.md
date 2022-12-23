@@ -93,10 +93,10 @@ kubectl describe policyreport polr-ns-deegree -n deegree
 ```
 Da die Regel *readOnlyRootFilesystem: true* zu erfüllen ist, werden der deegree Workspace wie auch sämtliche Tomcat-Unterverzeichnisse, auf die schreibend zugegriffen wird, im Deployment über Volume Mounts (*emptyDir*) abgebildet.
 
-Auf die deegree Konsole greifen wir über die Ingress-IP zu. URL: http://ingress-ip/deegree-webservices/console/webservices/index.xhtml
+Auf die deegree Konsole greifen wir über die Ingress-Nginx-IP zu. URL: http://ingress-nginx-ip/deegree-webservices/console/webservices/index.xhtml
 
 Und testen die beiden deegree Web-Services (WMS und WFS) in QGIS. bzw. den WFS über einen GetFeature-Request.
-URL: http://ingress-ip/deegree-webservices/services/inspire_us_schulstandorte_download?service=WFS&version=2.0.0&request=GetFeature&typeName=us-govserv:GovernmentalService&Count=1
+URL: http://ingress-nginx-ip/deegree-webservices/services/inspire_us_schulstandorte_download?service=WFS&version=2.0.0&request=GetFeature&typeName=us-govserv:GovernmentalService&Count=1
 
 Noch ein Wort zum Horizontal Pod Autoscaler. Dieser ermöglicht es, die Anzahl der Pods in Abhängigkeit von der CPU und der Memory Auslastung zu steuern. In diesem Fall läuft mindestens 1 Pod auf den Nodes. Ein zweiter Pod wird gestartet, sobald die Auslastung des laufenden Pods hier 85% der CPU oder 80% des Memorys erreicht (*apiVersion: autoscaling/v2beta2*).
 
